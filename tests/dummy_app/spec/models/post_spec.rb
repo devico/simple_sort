@@ -44,17 +44,17 @@ RSpec.describe Post, type: :model do
 
     describe 'column Title' do
       before(:each) do
-        FactoryGirl.create(:post, title: 'Вы когда-нибудь получали телеграмму от своего сердца?')
-        FactoryGirl.create(:post, title: 'Как избавиться от пятен…')
-        FactoryGirl.create(:post, title: 'А ваш дом страдает от дефицита картин')
+        FactoryGirl.create(:post, title: 'aaa')
+        FactoryGirl.create(:post, title: 'bbb')
+        FactoryGirl.create(:post, title: 'ccc')
       end
       let(:column) { :title }
 
-      context ' by ACS' do
+      context 'by ACS' do
         let(:type_sort) { 'asc' }
         
         it 'is valid' do
-          expect(Post.simple_sort(params).pluck(:title).first).to eq('Как избавиться от пятен…')
+          expect(Post.simple_sort(params).pluck(:title)).to eq ['ccc', 'bbb', 'aaa']
         end
       end
 
@@ -62,9 +62,57 @@ RSpec.describe Post, type: :model do
         let(:type_sort) { 'desc' }
 
         it 'is valid' do
-          expect(Post.simple_sort(params).pluck(:title).first).to eq('А ваш дом страдает от дефицита картин')
+          expect(Post.simple_sort(params).pluck(:title)).to eq ['aaa', 'bbb', 'ccc']
         end 
-      end  
+      end
+    end
+
+    describe 'with wrong params' do 
+      before(:each) do
+        3.times { FactoryGirl.create(:post) }
+      end
+
+      context 'sort type' do
+        let(:type_sort) { 'aZc' }
+        let(:column) { :title }
+
+        it 'is valid' do
+          expect(Post.simple_sort(params).to_sql).to eq 'SELECT "posts".* FROM "posts" ORDER BY posts.title ASC'
+        end
+      end
+      
+      context 'column to sort' do
+        let(:type_sort) { 'ASC' }
+        let(:column) { :ANY_WRONG_COLUMN_NAME }
+
+        it 'is not valid' do
+          expect(Post.simple_sort(params).to_sql).to eq 'SELECT "posts".* FROM "posts"'
+        end
+      end
+
+      context 'sort type and column to sort' do
+        let(:type_sort) { 'aZc' }
+        let(:column) { :ANY_WRONG_COLUMN_NAME }
+
+        it 'is not valid' do
+          expect(Post.simple_sort(params).to_sql).to eq 'SELECT "posts".* FROM "posts"'
+        end
+      end 
+    end
+
+    describe 'after sort by Title' do
+      before(:each) do
+        3.times { FactoryGirl.create(:post) }
+      end
+
+      context 'sorted by ID and DESC' do
+        let(:column) { :id }
+        let(:type_sort) { 'desc' }
+
+        it 'is valid' do
+          expect(Post.order('title DESC').simple_sort(params).pluck(:id)).to eq [1, 2, 3]
+        end
+      end
     end
   end
 end
