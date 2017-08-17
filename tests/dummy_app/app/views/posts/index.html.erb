@@ -1,18 +1,16 @@
 <%= link_to "New Post", new_post_path %>
 
-
-<table class="table table-hover table-condensed">
+<table>
   <thead>
-  <tr>
-    <th><%= link_to 'Id', simple_sort_url(:id), id: :id %></th>
-    <th><%= link_to 'Title', simple_sort_url(:title), title: :title %></th>
-    <th><%= link_to 'Created', simple_sort_url(:created_at), created_at: :created_at %></th>
-    <th colspan="2"></th>
-  </tr>
+    <tr>
+      <th><%= link_to 'Id', simple_sort_url(:id), id: :id %></th>
+      <th><%= link_to 'Title', simple_sort_url(:title), title: :title %></th>
+      <th><%= link_to 'Created', simple_sort_url(:created_at), created_at: :created_at %></th>
+    </tr>
   </thead>
   <tbody>
   <% @posts.each do |post| %>
-    <tr class="table table-hover table-condensed">
+    <tr>
       <td><%= post.id %></td>
       <td><%= post.title %></td>
       <td><%= post.created_at.strftime('%d.%m.%Y') %></td>
